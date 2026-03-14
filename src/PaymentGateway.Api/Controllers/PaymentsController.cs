@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using PaymentGateway.Api.Models.Responses;
-using PaymentGateway.Api.Services;
-
-namespace PaymentGateway.Api.Controllers;
+﻿namespace PaymentGateway.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
 public class PaymentsController(
-    IPaymentsRepository paymentsRepository) : ControllerBase
+    IPaymentsRepository paymentsRepository,
+    IPaymentService paymentService) 
+    : ControllerBase
 {
 
     /// <summary>
@@ -20,12 +18,37 @@ public class PaymentsController(
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(GetPaymentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<PostPaymentResponse?>> GetPaymentAsync(Guid id)
+    public ActionResult<PostPaymentResponse?> GetPayment(Guid id)
     {
         var payment = paymentsRepository.Get(id);
 
         return payment == null 
             ? NotFound() 
             : Ok(payment);
+    }
+
+    /// <summary>
+    /// Processes a payment request.
+    /// </summary>
+    /// <param name="request">The payment details.</param>
+    /// <returns>
+    /// The processed payment result if the request is valid; otherwise an error response.
+    /// </returns>
+    [HttpPost]
+    [ProducesResponseType(typeof(PostPaymentResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status502BadGateway)]
+    public async Task<ActionResult<PostPaymentResponse>> ProcessPaymentAsync(
+          [FromBody] PostPaymentRequest request)
+    {
+        if (!ModelState.IsValid)
+            return ValidationProblem(ModelState);
+        
+        var payment = await paymentService.ProcessAsync(request);
+
+        return CreatedAtAction(
+            nameof(GetPayment), 
+            new { id = payment.Id }, 
+            payment);
     }
 }

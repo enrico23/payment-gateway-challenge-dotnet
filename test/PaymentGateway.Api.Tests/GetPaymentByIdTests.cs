@@ -1,29 +1,7 @@
-﻿using System.Net;
-using System.Net.Http.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
-using PaymentGateway.Api.Models.Responses;
-using PaymentGateway.Api.Services;
+﻿namespace PaymentGateway.Api.Tests;
 
-namespace PaymentGateway.Api.Tests;
-
-public class PaymentsControllerTests
+public class GetPaymentByIdTests : PaymentsTestBase
 {
-    private readonly Random _random = new();
-
-    private HttpClient CreateClient(InMemoryPaymentStore store)
-    {
-        var factory = new WebApplicationFactory<Program>();
-
-        return factory.WithWebHostBuilder(builder =>
-            builder.ConfigureServices(services =>
-            {
-                services.AddSingleton(store);
-                services.AddScoped<IPaymentsRepository, PaymentsRepository>();
-            }))
-            .CreateClient();
-    }
-
     [Fact]
     public async Task RetrievesAPaymentSuccessfully()
     {
@@ -39,7 +17,6 @@ public class PaymentsControllerTests
             CardNumberLastFour = _random.Next(1111, 9999),
             Currency = "GBP"
         };
-
         store.Payments.Add(payment);
 
         var client = CreateClient(store);

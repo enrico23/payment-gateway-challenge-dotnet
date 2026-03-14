@@ -2,11 +2,6 @@
 
 namespace PaymentGateway.Api.Services;
 
-public sealed class InMemoryPaymentStore
-{
-    public List<PostPaymentResponse> Payments { get; } = [];
-}
-
 public interface IPaymentsRepository
 {
     void Add(PostPaymentResponse payment);
