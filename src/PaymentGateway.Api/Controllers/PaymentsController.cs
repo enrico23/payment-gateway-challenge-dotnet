@@ -39,12 +39,12 @@ public class PaymentsController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status502BadGateway)]
     public async Task<ActionResult<PaymentResponse>> ProcessPaymentAsync(
-          [FromBody] PostPaymentRequest request)
+          [FromBody] PostPaymentRequest request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
             return ValidationProblem(ModelState);
 
-        PaymentResponse payment = await paymentService.ProcessAsync(request);
+        PaymentResponse payment = await paymentService.ProcessAsync(request, cancellationToken);
 
         return CreatedAtAction(
             nameof(GetPayment), 
