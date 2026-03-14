@@ -15,7 +15,7 @@ public class PaymentService(
         {
             Id = Guid.NewGuid(),
             Status = PaymentStatus.Authorized,
-            CardNumberLastFour = request.CardNumberLastFour,
+            CardNumberLastFour = request.CardNumber,
             ExpiryMonth = request.ExpiryMonth,
             ExpiryYear = request.ExpiryYear,
             Currency = request.Currency,
