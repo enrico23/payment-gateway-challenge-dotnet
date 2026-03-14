@@ -16,11 +16,11 @@ public class PaymentsController(
     /// The payment details if found; otherwise returns <c>404 Not Found</c>.
     /// </returns>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(GetPaymentResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PaymentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<PostPaymentResponse?> GetPayment(Guid id)
+    public ActionResult<PaymentResponse?> GetPayment(Guid id)
     {
-        var payment = paymentsRepository.Get(id);
+        PaymentResponse? payment = paymentsRepository.Get(id);
 
         return payment == null 
             ? NotFound() 
@@ -35,16 +35,16 @@ public class PaymentsController(
     /// The processed payment result if the request is valid; otherwise an error response.
     /// </returns>
     [HttpPost]
-    [ProducesResponseType(typeof(PostPaymentResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(PaymentResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status502BadGateway)]
-    public async Task<ActionResult<PostPaymentResponse>> ProcessPaymentAsync(
-          [FromBody] PostPaymentRequest request)
+    public async Task<ActionResult<PaymentResponse>> ProcessPaymentAsync(
+          [FromBody] PostPaymentRequest request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
             return ValidationProblem(ModelState);
-        
-        var payment = await paymentService.ProcessAsync(request);
+
+        PaymentResponse payment = await paymentService.ProcessAsync(request, cancellationToken);
 
         return CreatedAtAction(
             nameof(GetPayment), 

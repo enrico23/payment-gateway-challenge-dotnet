@@ -2,28 +2,46 @@
 
 public interface IPaymentService
 {
-    Task<PostPaymentResponse> ProcessAsync(PostPaymentRequest request);
+    Task<PaymentResponse> ProcessAsync(PostPaymentRequest request, CancellationToken cancellationToken = default);
 }
 
 public class PaymentService(
-    IPaymentsRepository paymentsRepository) 
+    IPaymentsRepository paymentsRepository,
+    IAcquiringBankClient bankClient) 
     : IPaymentService
 {
-    public Task<PostPaymentResponse> ProcessAsync(PostPaymentRequest request)
+    public async Task<PaymentResponse> ProcessAsync(PostPaymentRequest request, CancellationToken cancellationToken = default)
     {
-        var payment = new PostPaymentResponse
+        var bankResult = await bankClient.ProcessPaymentAsync(request, cancellationToken);
+
+        var payment = new PaymentResponse
         {
             Id = Guid.NewGuid(),
-            Status = PaymentStatus.Authorized,
-            CardNumberLastFour = request.CardNumber,
+            Status = MapStatus(bankResult),
+            CardNumberLastFour = request.CardNumber[^4..],
             ExpiryMonth = request.ExpiryMonth,
             ExpiryYear = request.ExpiryYear,
             Currency = request.Currency,
-            Amount = request.Amount
         };
 
         paymentsRepository.Add(payment);
 
-        return Task.FromResult(payment);
+        return payment;
+    }
+
+    private PaymentStatus MapStatus(BankPaymentResult bankResult)
+    {
+        if (bankResult.IsUnavailable)
+            return PaymentStatus.Rejected;
+
+        if (bankResult.IsSuccess && bankResult.Authorized == true)
+            return PaymentStatus.Authorized;
+
+        if (bankResult.IsSuccess && bankResult.Authorized == false)
+        {
+            return PaymentStatus.Declined;
+        }
+
+        return PaymentStatus.Rejected;
     }
 }

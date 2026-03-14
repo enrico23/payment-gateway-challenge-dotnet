@@ -21,7 +21,7 @@ public class ProcessPaymentTests : PaymentsTestBase
 
         // Act
         var response = await client.PostAsJsonAsync("/api/Payments", request);
-        var paymentResponse = await response.Content.ReadFromJsonAsync<PostPaymentResponse>();
+        var paymentResponse = await response.Content.ReadFromJsonAsync<PaymentResponse>();
 
         // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
