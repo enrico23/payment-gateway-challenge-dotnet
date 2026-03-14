@@ -9,7 +9,7 @@ public class GetPaymentByIdTests : PaymentsTestBase
         var store = new InMemoryPaymentStore();
         var randomCardNumber = _random.Next(1111, 9999);
 
-        var payment = new PostPaymentResponse
+        var payment = new PaymentResponse
         {
             Id = Guid.NewGuid(),
             ExpiryYear = _random.Next(2023, 2030),
@@ -24,7 +24,7 @@ public class GetPaymentByIdTests : PaymentsTestBase
 
         // Act
         var response = await client.GetAsync($"/api/Payments/{payment.Id}");
-        var paymentResponse = await response.Content.ReadFromJsonAsync<PostPaymentResponse>();
+        var paymentResponse = await response.Content.ReadFromJsonAsync<PaymentResponse>();
         
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

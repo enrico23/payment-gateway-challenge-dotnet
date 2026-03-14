@@ -2,16 +2,16 @@
 
 public interface IPaymentService
 {
-    Task<PostPaymentResponse> ProcessAsync(PostPaymentRequest request);
+    Task<PaymentResponse> ProcessAsync(PostPaymentRequest request);
 }
 
 public class PaymentService(
     IPaymentsRepository paymentsRepository) 
     : IPaymentService
 {
-    public Task<PostPaymentResponse> ProcessAsync(PostPaymentRequest request)
+    public Task<PaymentResponse> ProcessAsync(PostPaymentRequest request)
     {
-        var payment = new PostPaymentResponse
+        var payment = new PaymentResponse
         {
             Id = Guid.NewGuid(),
             Status = PaymentStatus.Authorized,
