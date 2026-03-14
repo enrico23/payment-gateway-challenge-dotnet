@@ -9,7 +9,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<PaymentsRepository>();
+builder.Services.AddSingleton<InMemoryPaymentStore>();
+builder.Services.AddScoped<IPaymentsRepository, PaymentsRepository>();
 
 var app = builder.Build();
 
@@ -27,3 +28,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Exposes the entry point type for WebApplicationFactory integration tests.
+public partial class Program;
