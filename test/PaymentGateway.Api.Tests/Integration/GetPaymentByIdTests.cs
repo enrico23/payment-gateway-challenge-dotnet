@@ -1,4 +1,4 @@
-﻿namespace PaymentGateway.Api.Tests;
+﻿namespace PaymentGateway.Api.Tests.Integration;
 
 public class GetPaymentByIdTests : PaymentsTestBase
 {
@@ -7,6 +7,7 @@ public class GetPaymentByIdTests : PaymentsTestBase
     {
         // Arrange
         var store = new InMemoryPaymentStore();
+        var randomCardNumber = _random.Next(1111, 9999);
 
         var payment = new PostPaymentResponse
         {
@@ -14,7 +15,7 @@ public class GetPaymentByIdTests : PaymentsTestBase
             ExpiryYear = _random.Next(2023, 2030),
             ExpiryMonth = _random.Next(1, 12),
             Amount = _random.Next(1, 10000),
-            CardNumberLastFour = _random.Next(1111, 9999),
+            CardNumberLastFour = randomCardNumber.ToString(),
             Currency = "GBP"
         };
         store.Payments.Add(payment);

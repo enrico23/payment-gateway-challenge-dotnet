@@ -1,4 +1,4 @@
-﻿namespace PaymentGateway.Api.Tests
+﻿namespace PaymentGateway.Api.Tests.Integration
 {
     public abstract class PaymentsTestBase
     {
