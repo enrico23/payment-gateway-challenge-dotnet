@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PaymentGateway.Api.Domain;
 
+/// <summary>
+/// Represents a processed payment.
+/// </summary>
 public sealed class Payment
 {
     private static readonly HashSet<string> SupportedCurrencies = new(StringComparer.Ordinal)
@@ -29,20 +32,45 @@ public sealed class Payment
         Amount = amount;
     }
 
+    /// <summary>
+    /// Payment identifier.
+    /// </summary>
     public Guid Id { get; }
 
+    /// <summary>
+    /// Payment status.
+    /// </summary>
     public PaymentStatus Status { get; }
 
+    /// <summary>
+    /// Last four digits of the card number.
+    /// </summary>
     public string CardNumberLastFour { get; }
 
+    /// <summary>
+    /// Card expiry month.
+    /// </summary>
     public int ExpiryMonth { get; }
 
+    /// <summary>
+    /// Card expiry year.
+    /// </summary>
     public int ExpiryYear { get; }
 
+    /// <summary>
+    /// Payment currency.
+    /// </summary>
     public string Currency { get; }
 
+    /// <summary>
+    /// Payment amount in minor currency units.
+    /// </summary>
     public int Amount { get; }
 
+    /// <summary>
+    /// Validates whether a payment can be created from the request.
+    /// </summary>
+    /// <param name="request">Payment details.</param>
     public static void EnsureCanCreate(PostPaymentRequest request)
     {
         var errors = ValidateBusinessRules(request);
@@ -51,6 +79,12 @@ public sealed class Payment
             throw new PaymentValidationException(errors);
     }
 
+    /// <summary>
+    /// Creates a payment from the request.
+    /// </summary>
+    /// <param name="request">Payment details.</param>
+    /// <param name="status">Payment status.</param>
+    /// <returns>The created payment.</returns>
     public static Payment Create(PostPaymentRequest request, PaymentStatus status)
     {
         var errors = ValidateBusinessRules(request);
@@ -68,6 +102,10 @@ public sealed class Payment
             request.Amount);
     }
 
+    /// <summary>
+    /// Converts the payment to the API response model.
+    /// </summary>
+    /// <returns>The payment response.</returns>
     public PaymentResponse ToResponse()
     {
         return new PaymentResponse

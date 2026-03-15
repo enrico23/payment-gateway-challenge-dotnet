@@ -63,6 +63,12 @@ public class ProcessPaymentTests : PaymentsTestBase
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.NotNull(paymentResponse);
         Assert.Equal(PaymentStatus.Declined, paymentResponse!.Status);
+        Assert.NotEqual(Guid.Empty, paymentResponse.Id);
+        Assert.Equal("4242", paymentResponse.CardNumberLastFour);
+        Assert.Equal(request.ExpiryMonth, paymentResponse.ExpiryMonth);
+        Assert.Equal(request.ExpiryYear, paymentResponse.ExpiryYear);
+        Assert.Equal(request.Currency, paymentResponse.Currency);
+        Assert.Equal(request.Amount, paymentResponse.Amount);
         Assert.Single(DataStore.Payments);
     }
 

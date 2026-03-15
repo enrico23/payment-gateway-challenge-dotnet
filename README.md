@@ -1,21 +1,15 @@
-# Instructions for candidates
+# Payment Gateway Challenge
 
-This is the .NET version of the Payment Gateway challenge. If you haven't already read this [README.md](https://github.com/cko-recruitment/) on the details of this exercise, please do so now. 
+This repository contains a pragmatic implementation of the payment-gateway exercise focused on the functional requirements, clear validation boundaries, and maintainable tests.
 
-## Template structure
-```
-src/
-    PaymentGateway.Api - a skeleton ASP.NET Core Web API
-test/
-    PaymentGateway.Api.Tests - an empty xUnit test project
-imposters/ - contains the bank simulator configuration. Don't change this
+## Summary
 
-.editorconfig - don't change this. It ensures a consistent set of rules for submissions when reformatting code
-docker-compose.yml - configures the bank simulator
-PaymentGateway.sln
-```
+The solution exposes:
 
-Feel free to change the structure of the solution, use a different test library etc.
+- `POST /api/payments` to process a payment
+- `GET /api/payments/{id}` to retrieve a previously processed payment
+
+The implementation keeps request validation, domain rules, persistence, and external bank communication separated without adding unnecessary abstraction.
 
 ## Requirements Mapping
 
@@ -65,6 +59,11 @@ Business rules are enforced in the domain model via `Payment.Create(...)`:
 The full card number is used only for the acquiring bank request and is not persisted.
 Only the last 4 digits are stored and returned, which aligns with the exercise requirement.
 
+### Storage
+
+The exercise does not require a real database, so the solution uses an in-memory store behind `IPaymentsRepository`.
+Processed payments are stored as internal `Payment` domain objects rather than API response DTOs.
+
 ### Error handling
 
 - Invalid request or failed business validation returns `422 Unprocessable Entity`
@@ -87,6 +86,14 @@ The solution includes:
 - unit tests for `Payment.Create(...)` business rules
 - integration tests for the `PaymentsController`
 
+This keeps the tests focused on the parts of the code that contain actual behavior:
+
+- request-shape validation at the API boundary
+- payment business rules in the domain
+- end-to-end API behavior and response contracts
+
+I deliberately did not add low-value tests for simple DTOs or thin storage wrappers.
+
 ### Validation approach
 
 The validation split follows Microsoft guidance for separating API model validation from domain invariants:
@@ -97,3 +104,11 @@ The validation split follows Microsoft guidance for separating API model validat
   https://learn.microsoft.com/en-us/dotnet/api/system.componentmodel.dataannotations.ivalidatableobject?view=net-9.0
 - Domain invariants are enforced in the domain model, following Microsoft guidance on keeping business validation in the domain layer:
   https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/domain-model-layer-validations
+
+## Assumptions and Design Decisions
+
+- `Amount` is represented as an `int` because the contract uses minor currency units rather than decimal major-unit amounts.
+- `ExpiryYear` uses a dynamic sanity range at the request boundary to fail fast on unrealistic values, while the actual card-expiry decision is handled in the domain model.
+- Card expiry follows normal banking behavior: a card remains valid through the end of its expiry month.
+- Invalid payment requests return `422 Unprocessable Entity` and do not create a payment record.
+- Successful calls to the acquiring bank return a payment response with status `Authorized` or `Declined`.

@@ -1,24 +1,61 @@
 Session summary
 
-You’ve turned the initial scaffold into a functioning payment-gateway slice with better structure. The API now uses `ControllerBase`, the `GET /api/payments/{id}` endpoint returns `404` correctly, and integration tests were moved to `WebApplicationFactory<Program>` with the `public partial class Program;` entry-point pattern. You introduced a shared `PaymentResponse`, refactored test layout into `Integration` and `Unit`, added request DTO validation, added a payment service and repository abstraction over the in-memory store, configured enum serialization as strings, and introduced an acquiring-bank HTTP client plus fakeable boundary for tests.
+Yesterday
 
-You also added or reshaped tests around the current workflow: GET retrieval tests, unit tests for `PostPaymentRequest`, and POST integration tests intended to cover authorized, declined, invalid-request, and bank-unavailable scenarios using `NSubstitute` rather than the Docker simulator.
+You turned the initial scaffold into a working payment-gateway slice with a cleaner test setup and clearer API flow. The API now uses `ControllerBase`, `GET /api/payments/{id}` returns `404` correctly, and the integration tests run through `WebApplicationFactory<Program>` using the `public partial class Program;` entry-point pattern.
 
-What is still missing or not yet aligned with the requirements:
+You also introduced the main application seams:
 
-- `PaymentService` does not currently assign `Amount` into `PaymentResponse`, so at least one POST success test will fail.
-- `Rejected` semantics are still not aligned with the requirements. The requirements define `Rejected` as invalid gateway input rejected before calling the bank, but the current service/controller flow is using technical failure handling for bank unavailability.
-- Bank unavailability should return `502 Bad Gateway` and not create/store a payment; the service/controller should be reviewed to ensure that behavior is fully consistent.
-- `PostPaymentRequest.CardNumber` still allows `12-19` digits, but your requirement says `14-19`.
-- Expiry validation is still incomplete: `ExpiryYear` only has a range, but the requirement says the combined month/year must be in the future.
-- The POST integration tests were refactored to use `NSubstitute`, but they still need final verification after the service behavior is corrected.
-- If you want to fully match the exercise intent, the repository should ideally stop storing response DTOs and store an internal payment model instead, though this is less urgent than the requirement mismatches above.
+- `PaymentResponse` as the API response model
+- `PostPaymentRequest` validation and unit tests
+- `PaymentService` and `IPaymentsRepository`
+- an in-memory payment store behind a repository abstraction
+- enum serialization as strings
+- `IAcquiringBankClient` plus an HTTP implementation that can be substituted in tests
+- a clearer test layout split into `Integration` and `Unit`
 
-Suggested next steps for tomorrow:
+By the end of yesterday, the main gaps were still around requirement alignment: card length, expiry rules, invalid-request behavior, and storing an internal payment model instead of response DTOs.
 
-- fix `Amount = request.Amount` in `PaymentService`
-- tighten card-number validation to `14-19`
-- implement expiry month/year future validation
-- finalize the `Rejected` vs `502` behavior
-- rerun and stabilize POST integration tests
-- do one final requirement pass before stopping
+Today
+
+Today focused on aligning the implementation with the product requirements and making the behavior easier to justify.
+
+The main design change was moving payment business rules into a domain entity:
+
+- introduced a `Payment` domain model with `Create(...)`, `EnsureCanCreate(...)`, and `ToResponse()`
+- moved supported-currency validation and banking-style expiry validation into the domain
+- stopped persisting response DTOs and now store `Payment` in the repository
+- ensured only the last four card digits are retained and exposed
+
+The request contract was narrowed to fail-fast validation at the API boundary:
+
+- `PostPaymentRequest` now owns input-shape validation
+- card number validation was tightened to `14-19` digits
+- expiry year now has a dynamic sanity check to reject unrealistic values early
+- business rules such as supported currencies and effective card expiry remain in the domain
+
+The HTTP behavior was also aligned more closely with payment-gateway conventions:
+
+- invalid requests now return `422 Unprocessable Entity`
+- ASP.NET Core automatic model-state failures were configured to return `422` as well
+- `502 Bad Gateway` remains the response for acquiring-bank unavailability
+- no payment is created or stored when the request is invalid
+
+Tests were extended to prove the final requirements more directly:
+
+- unit tests cover `PostPaymentRequest` validation rules
+- unit tests cover `Payment.Create(...)` domain rules and card masking
+- integration tests cover authorized, declined, invalid, unavailable, and retrieval flows
+- response-contract assertions were strengthened so the POST and GET tests verify `Id`, `Status`, last four digits, expiry month/year, currency, and amount
+- test names were normalized to the `UnitUnderTest_WhenCondition_ThenResult` convention
+
+Documentation and OpenAPI support were also improved:
+
+- XML documentation was added across the public API surface with short comments
+- `<inheritdoc />` is used on implementation methods where the interface already defines the contract
+- Swagger is configured to include XML comments
+- the README now documents the validation split, card-data handling, `422` decision, and the references that motivated those choices
+
+Current state
+
+The solution compiles, the automated tests pass, and the implementation is aligned with the core payment-processing and payment-retrieval requirements. The remaining tradeoff is intentional: test coverage is focused on request validation, domain rules, and API behavior rather than trying to unit test every thin DTO or wrapper.
