@@ -35,7 +35,6 @@ public class PaymentsController(
     /// <returns>The processed payment result.</returns>
     [HttpPost]
     [ProducesResponseType(typeof(PaymentResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(PaymentResponse), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status502BadGateway)]
     public async Task<ActionResult<PaymentResponse>> ProcessPaymentAsync(
           [FromBody] PostPaymentRequest request, CancellationToken cancellationToken)
