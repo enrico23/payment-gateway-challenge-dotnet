@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace PaymentGateway.Api.Tests.Integration;
+namespace PaymentGateway.Api.Tests.Integration.PaymentsControllerTests;
 
 public abstract class PaymentsTestBase : IDisposable
 {
@@ -10,7 +10,7 @@ public abstract class PaymentsTestBase : IDisposable
     protected IAcquiringBankClient AcquiringBankClient { get; } =
         Substitute.For<IAcquiringBankClient>();
 
-    protected WebApplicationFactory<Program> Factory { get; }
+    protected WebApplicationFactory<Program> WebApplicationFactory { get; }
 
     protected HttpClient Client { get; }
 
@@ -24,7 +24,7 @@ public abstract class PaymentsTestBase : IDisposable
 
     protected PaymentsTestBase()
     {
-        Factory = new WebApplicationFactory<Program>()
+        WebApplicationFactory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
                 builder.ConfigureServices(services =>
                 {
@@ -39,12 +39,12 @@ public abstract class PaymentsTestBase : IDisposable
                     services.AddSingleton<IAcquiringBankClient>(AcquiringBankClient);
                 }));
 
-        Client = Factory.CreateClient();
+        Client = WebApplicationFactory.CreateClient();
     }
 
     public void Dispose()
     {
         Client.Dispose();
-        Factory.Dispose();
+        WebApplicationFactory.Dispose();
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace PaymentGateway.Api.Tests.Integration;
+﻿namespace PaymentGateway.Api.Tests.Integration.PaymentsControllerTests;
 
 public class GetPaymentByIdTests : PaymentsTestBase
 {
