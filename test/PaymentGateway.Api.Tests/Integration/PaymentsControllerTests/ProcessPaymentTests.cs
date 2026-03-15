@@ -97,9 +97,11 @@ public class ProcessPaymentTests : PaymentsTestBase
     [InlineData("4242424242424242", 0, 2028, "GBP", 100, "123")]
     [InlineData("4242424242424242", 13, 2028, "GBP", 100, "123")]
     [InlineData("4242424242424242", 12, 2028, "GB", 100, "123")]
+    [InlineData("4242424242424242", 1, 2000, "GBP", 100, "123")]
+    [InlineData("4242424242424242", 12, 2028, "AUD", 100, "123")]
     [InlineData("4242424242424242", 12, 2028, "GBP", 0, "123")]
     [InlineData("4242424242424242", 12, 2028, "GBP", 100, "12")]
-    public async Task ReturnsBadRequestWhenRequestIsInvalid(
+    public async Task ReturnsUnprocessableEntityWhenRequestIsInvalid(
         string cardNumber,
         int expiryMonth,
         int expiryYear,
@@ -122,7 +124,7 @@ public class ProcessPaymentTests : PaymentsTestBase
         var response = await Client.PostAsJsonAsync("/api/Payments", request);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
         await AcquiringBankClient
             .DidNotReceive()
             .ProcessPaymentAsync(Arg.Any<PostPaymentRequest>(), Arg.Any<CancellationToken>());

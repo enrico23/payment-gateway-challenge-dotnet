@@ -6,17 +6,19 @@ public class GetPaymentByIdTests : PaymentsTestBase
     public async Task RetrievesAPaymentSuccessfully()
     {
         // Arrange
-        var randomCardNumber = _random.Next(1111, 9999);
+        var nextMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(1);
+        var payment = Payment.Create(
+            new PostPaymentRequest
+            {
+                CardNumber = "4242424242424242",
+                ExpiryYear = nextMonth.Year,
+                ExpiryMonth = nextMonth.Month,
+                Amount = _random.Next(1, 10000),
+                Currency = "GBP",
+                Cvv = "123"
+            },
+            PaymentStatus.Authorized);
 
-        var payment = new PaymentResponse
-        {
-            Id = Guid.NewGuid(),
-            ExpiryYear = _random.Next(2023, 2030),
-            ExpiryMonth = _random.Next(1, 12),
-            Amount = _random.Next(1, 10000),
-            CardNumberLastFour = randomCardNumber.ToString(),
-            Currency = "GBP"
-        };
         DataStore.Payments.Add(payment);
 
         // Act

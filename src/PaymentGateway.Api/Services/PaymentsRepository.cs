@@ -1,19 +1,19 @@
-﻿namespace PaymentGateway.Api.Services;
+namespace PaymentGateway.Api.Services;
 
 public interface IPaymentsRepository
 {
-    void Add(PaymentResponse payment);
-    PaymentResponse? Get(Guid id);
+    void Add(Payment payment);
+    Payment? Get(Guid id);
 }
 
 public sealed class PaymentsRepository(InMemoryPaymentStore store) : IPaymentsRepository
 {
-    public void Add(PaymentResponse payment)
+    public void Add(Payment payment)
     {
         store.Payments.Add(payment);
     }
 
-    public PaymentResponse? Get(Guid id)
+    public Payment? Get(Guid id)
     {
         return store.Payments.FirstOrDefault(p => p.Id == id);
     }
