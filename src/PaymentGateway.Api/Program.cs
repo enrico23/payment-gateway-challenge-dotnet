@@ -1,25 +1,34 @@
-using System.Text.Json.Serialization;
-
 var builder = WebApplication.CreateBuilder(args);
+var xmlFileName = $"{typeof(Program).Assembly.GetName().Name}.xml";
+var xmlFilePath = Path.Combine(AppContext.BaseDirectory, xmlFileName);
 
 // Add services to the container.
-
 builder.Services
     .AddControllers()
     .AddJsonOptions(options =>
     {
+        // Converts enum to string values.
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+        new UnprocessableEntityObjectResult(new ValidationProblemDetails(context.ModelState));
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.IncludeXmlComments(xmlFilePath);
+});
 
 builder.Services.AddSingleton<InMemoryPaymentStore>();
 builder.Services.AddScoped<IPaymentsRepository, PaymentsRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
-// 
+// Acquiring Bank Http Client
 builder.Services.AddHttpClient<IAcquiringBankClient, AcquiringBankClient>(
     client => client.BaseAddress = new Uri("http://localhost:8080"));
 
@@ -40,5 +49,7 @@ app.MapControllers();
 
 app.Run();
 
-// Exposes the entry point type for WebApplicationFactory integration tests.
+/// <summary>
+/// Exposes the entry point type for WebApplicationFactory integration tests.
+/// </summary>
 public partial class Program;

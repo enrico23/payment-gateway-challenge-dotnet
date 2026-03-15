@@ -1,121 +1,156 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace PaymentGateway.Api.Tests.Unit.Models.Requests;
 
 public class PostPaymentRequestTests
 {
     [Fact]
-    public void ValidRequest_PassesValidation()
+    public void Validate_WhenRequestIsValid_ThenReturnsValidResult()
     {
-        var request = new PostPaymentRequest
-        {
-            CardNumber = "4242424242424242",
-            ExpiryMonth = 12,
-            ExpiryYear = 2028,
-            Currency = "GBP",
-            Amount = 100,
-            Cvv = "123"
-        };
+        // Arrange
+        var request = CreateValidRequest();
 
+        // Act
         var result = Validate(request);
 
+        // Assert
         Assert.True(result.IsValid);
         Assert.Empty(result.Errors);
     }
 
     [Fact]
-    public void MissingCardNumber_FailsValidation()
+    public void Validate_WhenCardNumberIsMissing_ThenReturnsInvalidResult()
     {
-        var request = new PostPaymentRequest
-        {
-            CardNumber = "",
-            ExpiryMonth = 12,
-            ExpiryYear = 2028,
-            Currency = "GBP",
-            Amount = 100,
-            Cvv = "123"
-        };
+        // Arrange
+        var request = CreateValidRequest();
+        request.CardNumber = string.Empty;
 
+        // Act
         var result = Validate(request);
 
+        // Assert
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.MemberNames.Contains(nameof(PostPaymentRequest.CardNumber)));
     }
 
     [Fact]
-    public void InvalidExpiryMonth_FailsValidation()
+    public void Validate_WhenCardNumberIsTooShort_ThenReturnsInvalidResult()
     {
-        var request = new PostPaymentRequest
-        {
-            CardNumber = "4242424242424242",
-            ExpiryMonth = 13,
-            ExpiryYear = 2028,
-            Currency = "GBP",
-            Amount = 100,
-            Cvv = "123"
-        };
+        // Arrange
+        var request = CreateValidRequest();
+        request.CardNumber = "1234567890123";
 
+        // Act
         var result = Validate(request);
 
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.MemberNames.Contains(nameof(PostPaymentRequest.CardNumber)));
+    }
+
+    [Fact]
+    public void Validate_WhenExpiryMonthIsOutsideValidRange_ThenReturnsInvalidResult()
+    {
+        // Arrange
+        var request = CreateValidRequest();
+        request.ExpiryMonth = 13;
+
+        // Act
+        var result = Validate(request);
+
+        // Assert
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.MemberNames.Contains(nameof(PostPaymentRequest.ExpiryMonth)));
     }
 
     [Fact]
-    public void InvalidCurrency_FailsValidation()
+    public void Validate_WhenExpiryYearIsBeforeCurrentYear_ThenReturnsInvalidResult()
     {
-        var request = new PostPaymentRequest
-        {
-            CardNumber = "4242424242424242",
-            ExpiryMonth = 12,
-            ExpiryYear = 2028,
-            Currency = "GB",
-            Amount = 100,
-            Cvv = "123"
-        };
+        // Arrange
+        var request = CreateValidRequest();
+        request.ExpiryYear = DateTime.UtcNow.Year - 1;
 
+        // Act
         var result = Validate(request);
 
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.MemberNames.Contains(nameof(PostPaymentRequest.ExpiryYear)));
+    }
+
+    [Fact]
+    public void Validate_WhenExpiryYearIsTooFarInFuture_ThenReturnsInvalidResult()
+    {
+        // Arrange
+        var request = CreateValidRequest();
+        request.ExpiryYear = DateTime.UtcNow.Year + 21;
+
+        // Act
+        var result = Validate(request);
+
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.MemberNames.Contains(nameof(PostPaymentRequest.ExpiryYear)));
+    }
+
+    [Fact]
+    public void Validate_WhenCurrencyLengthIsInvalid_ThenReturnsInvalidResult()
+    {
+        // Arrange
+        var request = CreateValidRequest();
+        request.Currency = "GB";
+
+        // Act
+        var result = Validate(request);
+
+        // Assert
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.MemberNames.Contains(nameof(PostPaymentRequest.Currency)));
     }
 
     [Fact]
-    public void NonPositiveAmount_FailsValidation()
+    public void Validate_WhenAmountIsNotPositive_ThenReturnsInvalidResult()
     {
-        var request = new PostPaymentRequest
-        {
-            CardNumber = "4242424242424242",
-            ExpiryMonth = 12,
-            ExpiryYear = 2028,
-            Currency = "GBP",
-            Amount = 0,
-            Cvv = "123"
-        };
+        // Arrange
+        var request = CreateValidRequest();
+        request.Amount = 0;
 
+        // Act
         var result = Validate(request);
 
+        // Assert
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.MemberNames.Contains(nameof(PostPaymentRequest.Amount)));
     }
 
     [Fact]
-    public void InvalidCvv_FailsValidation()
+    public void Validate_WhenCvvLengthIsInvalid_ThenReturnsInvalidResult()
     {
-        var request = new PostPaymentRequest
-        {
-            CardNumber = "4242424242424242",
-            ExpiryMonth = 12,
-            ExpiryYear = 2028,
-            Currency = "GBP",
-            Amount = 100,
-            Cvv = "12"
-        };
+        // Arrange
+        var request = CreateValidRequest();
+        request.Cvv = "12";
 
+        // Act
         var result = Validate(request);
 
+        // Assert
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.MemberNames.Contains(nameof(PostPaymentRequest.Cvv)));
+    }
+
+    private static PostPaymentRequest CreateValidRequest()
+    {
+        var nextMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(1);
+
+        return new PostPaymentRequest
+        {
+            CardNumber = "4242424242424242",
+            ExpiryMonth = nextMonth.Month,
+            ExpiryYear = nextMonth.Year,
+            Currency = "GBP",
+            Amount = 100,
+            Cvv = "123"
+        };
     }
 
     private static ValidationTestResult Validate(PostPaymentRequest request)

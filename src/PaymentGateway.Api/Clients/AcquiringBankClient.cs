@@ -2,16 +2,34 @@
 
 namespace PaymentGateway.Api.Clients;
 
+/// <summary>
+/// Sends payment requests to the acquiring bank.
+/// </summary>
 public interface IAcquiringBankClient
 {
+    /// <summary>
+    /// Sends a payment request to the acquiring bank.
+    /// </summary>
+    /// <param name="request">Payment details.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The bank processing result.</returns>
     Task<BankPaymentResult> ProcessPaymentAsync(
           PostPaymentRequest request,
           CancellationToken cancellationToken = default);
 }
 
+/// <summary>
+/// HTTP client for the acquiring bank.
+/// </summary>
 public sealed class AcquiringBankClient(HttpClient httpClient)
     : IAcquiringBankClient
 {
+    /// <summary>
+    /// Sends a payment request to the acquiring bank.
+    /// </summary>
+    /// <param name="request">Payment details.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The bank processing result.</returns>
     public async Task<BankPaymentResult> ProcessPaymentAsync(
          PostPaymentRequest request,
          CancellationToken cancellationToken = default)
@@ -43,8 +61,6 @@ public sealed class AcquiringBankClient(HttpClient httpClient)
 
         return bankResponse is null
             ? BankPaymentResult.Failed("Bank response was empty.")
-            : BankPaymentResult.Success(
-            bankResponse.Authorized,
-            bankResponse.AuthorizationCode);
+            : BankPaymentResult.Success(bankResponse.Authorized, bankResponse.AuthorizationCode);
     }
 }
