@@ -1,6 +1,3 @@
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Mvc;
-
 var builder = WebApplication.CreateBuilder(args);
 var xmlFileName = $"{typeof(Program).Assembly.GetName().Name}.xml";
 var xmlFilePath = Path.Combine(AppContext.BaseDirectory, xmlFileName);
@@ -52,5 +49,7 @@ app.MapControllers();
 
 app.Run();
 
-// Exposes the entry point type for WebApplicationFactory integration tests.
+/// <summary>
+/// Exposes the entry point type for WebApplicationFactory integration tests.
+/// </summary>
 public partial class Program;
