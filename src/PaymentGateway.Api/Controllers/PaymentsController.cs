@@ -35,13 +35,13 @@ public class PaymentsController(
     /// <returns>The processed payment result.</returns>
     [HttpPost]
     [ProducesResponseType(typeof(PaymentResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(PaymentResponse), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status502BadGateway)]
     public async Task<ActionResult<PaymentResponse>> ProcessPaymentAsync(
           [FromBody] PostPaymentRequest request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
-            return UnprocessableEntity(new ValidationProblemDetails(ModelState));
+            return UnprocessableEntity(CreateRejectedResponse(request));
 
         try
         {
@@ -66,11 +66,30 @@ public class PaymentsController(
                 }
             }
 
-            return UnprocessableEntity(new ValidationProblemDetails(ModelState));
+            return UnprocessableEntity(CreateRejectedResponse(request));
         }
         catch (InvalidOperationException)
         {
             return StatusCode(StatusCodes.Status502BadGateway);
         }
+    }
+
+    private static PaymentResponse CreateRejectedResponse(PostPaymentRequest request)
+    {
+        var numericCardDigits = new string((request.CardNumber ?? string.Empty).Where(char.IsDigit).ToArray());
+        var lastFourDigits = numericCardDigits.Length >= 4
+            ? numericCardDigits[^4..]
+            : string.Empty;
+
+        return new PaymentResponse
+        {
+            Id = Guid.Empty,
+            Status = PaymentStatus.Rejected,
+            CardNumberLastFour = lastFourDigits,
+            ExpiryMonth = request.ExpiryMonth,
+            ExpiryYear = request.ExpiryYear,
+            Currency = request.Currency,
+            Amount = request.Amount
+        };
     }
 }

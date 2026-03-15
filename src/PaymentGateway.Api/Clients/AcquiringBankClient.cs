@@ -24,12 +24,7 @@ public interface IAcquiringBankClient
 public sealed class AcquiringBankClient(HttpClient httpClient)
     : IAcquiringBankClient
 {
-    /// <summary>
-    /// Sends a payment request to the acquiring bank.
-    /// </summary>
-    /// <param name="request">Payment details.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>The bank processing result.</returns>
+    /// <inheritdoc />
     public async Task<BankPaymentResult> ProcessPaymentAsync(
          PostPaymentRequest request,
          CancellationToken cancellationToken = default)

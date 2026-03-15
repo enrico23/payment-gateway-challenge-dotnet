@@ -1,5 +1,8 @@
-﻿namespace PaymentGateway.Api.Models.Responses;
+namespace PaymentGateway.Api.Models.Responses;
 
+/// <summary>
+/// Payment details returned by the API.
+/// </summary>
 public sealed class PaymentResponse
 {
     public Guid Id { get; set; }

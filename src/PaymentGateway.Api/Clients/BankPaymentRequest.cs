@@ -1,7 +1,8 @@
-﻿using System.Text.Json.Serialization;
-
 namespace PaymentGateway.Api.Clients;
 
+/// <summary>
+/// Payment request sent to the acquiring bank.
+/// </summary>
 public sealed class BankPaymentRequest
 {
     [JsonPropertyName("card_number")]

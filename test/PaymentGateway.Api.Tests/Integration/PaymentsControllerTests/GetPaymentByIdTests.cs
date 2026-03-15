@@ -7,13 +7,14 @@ public class GetPaymentByIdTests : PaymentsTestBase
     {
         // Arrange
         var nextMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(1);
+        var amount = _random.Next(1, 10000);
         var payment = Payment.Create(
             new PostPaymentRequest
             {
                 CardNumber = "4242424242424242",
                 ExpiryYear = nextMonth.Year,
                 ExpiryMonth = nextMonth.Month,
-                Amount = _random.Next(1, 10000),
+                Amount = amount,
                 Currency = "GBP",
                 Cvv = "123"
             },
@@ -28,6 +29,13 @@ public class GetPaymentByIdTests : PaymentsTestBase
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(paymentResponse);
+        Assert.Equal(payment.Id, paymentResponse!.Id);
+        Assert.Equal(PaymentStatus.Authorized, paymentResponse.Status);
+        Assert.Equal("4242", paymentResponse.CardNumberLastFour);
+        Assert.Equal(nextMonth.Month, paymentResponse.ExpiryMonth);
+        Assert.Equal(nextMonth.Year, paymentResponse.ExpiryYear);
+        Assert.Equal("GBP", paymentResponse.Currency);
+        Assert.Equal(amount, paymentResponse.Amount);
     }
 
     [Fact]
