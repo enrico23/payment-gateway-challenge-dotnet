@@ -4,34 +4,30 @@ namespace PaymentGateway.Api.Tests.Integration;
 
 public class ProcessPaymentTests : PaymentsTestBase
 {
-    [Theory]
-    [InlineData("4242424242424242", 1, 2028, "GBP", 100, "123", "4242")]
-    public async Task ProcessesPaymentSuccessfully_WhenBankAuthorizes(
-        string cardNumber,
-        int expiryMonth,
-        int expiryYear,
-        string currency,
-        int amount,
-        string cvv,
-        string expectedLastFourDigits)
+    [Fact]
+    public async Task ProcessesPaymentSuccessfully_WhenBankAuthorizes()
     {
+        // Arrange
         AcquiringBankClient
             .ProcessPaymentAsync(Arg.Any<PostPaymentRequest>(), Arg.Any<CancellationToken>())
             .Returns(BankPaymentResult.Success(authorized: true, authorizationCode: "auth-code"));
 
         var request = new PostPaymentRequest
         {
-            CardNumber = cardNumber,
-            ExpiryMonth = expiryMonth,
-            ExpiryYear = expiryYear,
-            Currency = currency,
-            Amount = amount,
-            Cvv = cvv
+            CardNumber = "4242424242424242",
+            ExpiryMonth = 1,
+            ExpiryYear = 2028,
+            Currency = "GBP",
+            Amount = 100,
+            Cvv = "123"
         };
 
+        // Act
         var response = await Client.PostAsJsonAsync("/api/Payments", request);
         var paymentResponse = await response.Content.ReadFromJsonAsync<PaymentResponse>(JsonOptions);
 
+        // Assert
+        string expectedLastFourDigits = "4242";
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.NotNull(paymentResponse);
         Assert.NotEqual(Guid.Empty, paymentResponse!.Id);
@@ -44,6 +40,7 @@ public class ProcessPaymentTests : PaymentsTestBase
     [Fact]
     public async Task ProcessesPaymentSuccessfully_WhenBankDeclines()
     {
+        // Arrange
         AcquiringBankClient
             .ProcessPaymentAsync(Arg.Any<PostPaymentRequest>(), Arg.Any<CancellationToken>())
             .Returns(BankPaymentResult.Success(authorized: false, authorizationCode: string.Empty));
@@ -58,9 +55,11 @@ public class ProcessPaymentTests : PaymentsTestBase
             Cvv = "123"
         };
 
+        // Act
         var response = await Client.PostAsJsonAsync("/api/Payments", request);
         var paymentResponse = await response.Content.ReadFromJsonAsync<PaymentResponse>(JsonOptions);
 
+        // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.NotNull(paymentResponse);
         Assert.Equal(PaymentStatus.Declined, paymentResponse!.Status);
@@ -70,6 +69,7 @@ public class ProcessPaymentTests : PaymentsTestBase
     [Fact]
     public async Task ReturnsBadGateway_WhenAcquiringBankIsUnavailable()
     {
+        // Arrange
         AcquiringBankClient
             .ProcessPaymentAsync(Arg.Any<PostPaymentRequest>(), Arg.Any<CancellationToken>())
             .Returns(BankPaymentResult.Unavailable());
@@ -84,8 +84,10 @@ public class ProcessPaymentTests : PaymentsTestBase
             Cvv = "123"
         };
 
+        // Act
         var response = await Client.PostAsJsonAsync("/api/Payments", request);
 
+        // Assert
         Assert.Equal(HttpStatusCode.BadGateway, response.StatusCode);
         Assert.Empty(DataStore.Payments);
     }
@@ -105,6 +107,7 @@ public class ProcessPaymentTests : PaymentsTestBase
         int amount,
         string cvv)
     {
+        // Arrange
         var request = new PostPaymentRequest
         {
             CardNumber = cardNumber,
@@ -115,8 +118,10 @@ public class ProcessPaymentTests : PaymentsTestBase
             Cvv = cvv
         };
 
+        // Act
         var response = await Client.PostAsJsonAsync("/api/Payments", request);
 
+        // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         await AcquiringBankClient
             .DidNotReceive()
