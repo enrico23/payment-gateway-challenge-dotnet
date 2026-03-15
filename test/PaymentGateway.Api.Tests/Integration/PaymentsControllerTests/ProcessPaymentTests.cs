@@ -5,7 +5,7 @@ namespace PaymentGateway.Api.Tests.Integration.PaymentsControllerTests;
 public class ProcessPaymentTests : PaymentsTestBase
 {
     [Fact]
-    public async Task ProcessesPaymentSuccessfully_WhenBankAuthorizes()
+    public async Task ProcessPaymentAsync_WhenBankAuthorizes_ThenReturnsCreatedAuthorizedPayment()
     {
         // Arrange
         AcquiringBankClient
@@ -38,7 +38,7 @@ public class ProcessPaymentTests : PaymentsTestBase
     }
 
     [Fact]
-    public async Task ProcessesPaymentSuccessfully_WhenBankDeclines()
+    public async Task ProcessPaymentAsync_WhenBankDeclines_ThenReturnsCreatedDeclinedPayment()
     {
         // Arrange
         AcquiringBankClient
@@ -67,7 +67,7 @@ public class ProcessPaymentTests : PaymentsTestBase
     }
 
     [Fact]
-    public async Task ReturnsBadGateway_WhenAcquiringBankIsUnavailable()
+    public async Task ProcessPaymentAsync_WhenAcquiringBankIsUnavailable_ThenReturnsBadGateway()
     {
         // Arrange
         AcquiringBankClient
@@ -101,7 +101,7 @@ public class ProcessPaymentTests : PaymentsTestBase
     [InlineData("4242424242424242", 12, 2028, "AUD", 100, "123")]
     [InlineData("4242424242424242", 12, 2028, "GBP", 0, "123")]
     [InlineData("4242424242424242", 12, 2028, "GBP", 100, "12")]
-    public async Task ReturnsUnprocessableEntityWhenRequestIsInvalid(
+    public async Task ProcessPaymentAsync_WhenRequestIsInvalid_ThenReturnsUnprocessableEntity(
         string cardNumber,
         int expiryMonth,
         int expiryYear,

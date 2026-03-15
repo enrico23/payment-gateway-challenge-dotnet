@@ -3,7 +3,7 @@ namespace PaymentGateway.Api.Tests.Unit.Domain;
 public class PaymentTests
 {
     [Fact]
-    public void Create_whenRequestIsValid_thenCreatesPaymentWithMaskedCardNumber()
+    public void Create_WhenRequestIsValid_ThenCreatesPaymentWithMaskedCardNumber()
     {
         // Arrange
         var request = CreateValidRequest();
@@ -21,7 +21,7 @@ public class PaymentTests
     }
 
     [Fact]
-    public void Create_whenExpiryMonthIsCurrentMonth_thenCreatesPayment()
+    public void Create_WhenExpiryMonthIsCurrentMonth_ThenCreatesPayment()
     {
         // Arrange
         var now = DateTime.UtcNow;
@@ -38,7 +38,7 @@ public class PaymentTests
     }
 
     [Fact]
-    public void Create_whenExpiryMonthHasPassed_thenThrowsPaymentValidationException()
+    public void Create_WhenExpiryMonthHasPassed_ThenThrowsPaymentValidationException()
     {
         // Arrange
         var now = DateTime.UtcNow;
@@ -57,7 +57,7 @@ public class PaymentTests
     }
 
     [Fact]
-    public void Create_whenCurrencyIsUnsupported_thenThrowsPaymentValidationException()
+    public void Create_WhenCurrencyIsUnsupported_ThenThrowsPaymentValidationException()
     {
         // Arrange
         var request = CreateValidRequest();

@@ -3,7 +3,7 @@
 public class GetPaymentByIdTests : PaymentsTestBase
 {
     [Fact]
-    public async Task RetrievesAPaymentSuccessfully()
+    public async Task GetPayment_WhenPaymentExists_ThenReturnsOk()
     {
         // Arrange
         var nextMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(1);
@@ -31,7 +31,7 @@ public class GetPaymentByIdTests : PaymentsTestBase
     }
 
     [Fact]
-    public async Task Returns404IfPaymentNotFound()
+    public async Task GetPayment_WhenPaymentDoesNotExist_ThenReturnsNotFound()
     {
         // Act
         var response = await Client.GetAsync($"/api/Payments/{Guid.NewGuid()}");

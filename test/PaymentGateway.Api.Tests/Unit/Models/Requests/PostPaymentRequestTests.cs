@@ -5,7 +5,7 @@ namespace PaymentGateway.Api.Tests.Unit.Models.Requests;
 public class PostPaymentRequestTests
 {
     [Fact]
-    public void Validate_whenRequestIsValid_thenReturnsValidResult()
+    public void Validate_WhenRequestIsValid_ThenReturnsValidResult()
     {
         // Arrange
         var request = CreateValidRequest();
@@ -19,7 +19,7 @@ public class PostPaymentRequestTests
     }
 
     [Fact]
-    public void Validate_whenCardNumberIsMissing_thenReturnsInvalidResult()
+    public void Validate_WhenCardNumberIsMissing_ThenReturnsInvalidResult()
     {
         // Arrange
         var request = CreateValidRequest();
@@ -34,7 +34,7 @@ public class PostPaymentRequestTests
     }
 
     [Fact]
-    public void Validate_whenCardNumberIsTooShort_thenReturnsInvalidResult()
+    public void Validate_WhenCardNumberIsTooShort_ThenReturnsInvalidResult()
     {
         // Arrange
         var request = CreateValidRequest();
@@ -49,7 +49,7 @@ public class PostPaymentRequestTests
     }
 
     [Fact]
-    public void Validate_whenExpiryMonthIsOutsideValidRange_thenReturnsInvalidResult()
+    public void Validate_WhenExpiryMonthIsOutsideValidRange_ThenReturnsInvalidResult()
     {
         // Arrange
         var request = CreateValidRequest();
@@ -64,7 +64,7 @@ public class PostPaymentRequestTests
     }
 
     [Fact]
-    public void Validate_whenExpiryYearIsBeforeCurrentYear_thenReturnsInvalidResult()
+    public void Validate_WhenExpiryYearIsBeforeCurrentYear_ThenReturnsInvalidResult()
     {
         // Arrange
         var request = CreateValidRequest();
@@ -79,7 +79,7 @@ public class PostPaymentRequestTests
     }
 
     [Fact]
-    public void Validate_whenExpiryYearIsTooFarInFuture_thenReturnsInvalidResult()
+    public void Validate_WhenExpiryYearIsTooFarInFuture_ThenReturnsInvalidResult()
     {
         // Arrange
         var request = CreateValidRequest();
@@ -94,7 +94,7 @@ public class PostPaymentRequestTests
     }
 
     [Fact]
-    public void Validate_whenCurrencyLengthIsInvalid_thenReturnsInvalidResult()
+    public void Validate_WhenCurrencyLengthIsInvalid_ThenReturnsInvalidResult()
     {
         // Arrange
         var request = CreateValidRequest();
@@ -109,7 +109,7 @@ public class PostPaymentRequestTests
     }
 
     [Fact]
-    public void Validate_whenAmountIsNotPositive_thenReturnsInvalidResult()
+    public void Validate_WhenAmountIsNotPositive_ThenReturnsInvalidResult()
     {
         // Arrange
         var request = CreateValidRequest();
@@ -124,7 +124,7 @@ public class PostPaymentRequestTests
     }
 
     [Fact]
-    public void Validate_whenCvvLengthIsInvalid_thenReturnsInvalidResult()
+    public void Validate_WhenCvvLengthIsInvalid_ThenReturnsInvalidResult()
     {
         // Arrange
         var request = CreateValidRequest();

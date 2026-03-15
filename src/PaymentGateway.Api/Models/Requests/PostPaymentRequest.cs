@@ -3,54 +3,54 @@ using System.ComponentModel.DataAnnotations;
 namespace PaymentGateway.Api.Models.Requests;
 
 /// <summary>
-/// Represents the request contract used by merchants to submit a card payment for processing.
+/// Payment request sent by a merchant.
 /// </summary>
 public sealed class PostPaymentRequest : IValidatableObject
 {
     /// <summary>
-    /// The primary account number of the card, expressed as 14 to 19 numeric digits.
+    /// Card number as 14 to 19 digits.
     /// </summary>
     [Required]
     [RegularExpression(@"^\d{14,19}$")]
     public string CardNumber { get; set; } = string.Empty;
 
     /// <summary>
-    /// The card expiry month, expressed as a value from 1 to 12.
+    /// Card expiry month from 1 to 12.
     /// </summary>
     [Range(1, 12)]
     public int ExpiryMonth { get; set; }
 
     /// <summary>
-    /// The card expiry year. Request validation applies a realistic sanity range, while domain validation enforces actual expiry rules.
+    /// Card expiry year.
     /// </summary>
     [Range(2026, 2050)]
     public int ExpiryYear { get; set; }
 
     /// <summary>
-    /// The three-letter ISO currency code for the payment.
+    /// Three-letter ISO currency code.
     /// </summary>
     [Required]
     [StringLength(3, MinimumLength = 3)]
     public string Currency { get; set; } = string.Empty;
 
     /// <summary>
-    /// The payment amount in minor currency units, for example 1050 for 10.50 GBP.
+    /// Amount in minor currency units.
     /// </summary>
     [Range(1, int.MaxValue)]
     public int Amount { get; set; }
 
     /// <summary>
-    /// The card verification value, expressed as 3 to 4 numeric digits.
+    /// Card verification value as 3 or 4 digits.
     /// </summary>
     [Required]
     [RegularExpression(@"^\d{3,4}$")]
     public string Cvv { get; set; } = string.Empty;
 
     /// <summary>
-    /// Performs fail-fast sanity validation for values that need dynamic date-based checks at the API boundary.
+    /// Applies dynamic sanity checks that cannot be expressed with static attributes.
     /// </summary>
-    /// <param name="validationContext">The validation context supplied by the framework.</param>
-    /// <returns>A sequence of validation errors when the request contains unrealistic expiry year values.</returns>
+    /// <param name="validationContext">Validation context.</param>
+    /// <returns>Validation errors, if any.</returns>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         var currentYear = DateTime.UtcNow.Year;

@@ -1,7 +1,7 @@
 namespace PaymentGateway.Api.Controllers;
 
 /// <summary>
-/// Exposes endpoints for processing payments and retrieving previously processed payment details.
+/// Handles payment requests.
 /// </summary>
 [Route("api/[controller]")]
 [ApiController]
@@ -11,12 +11,10 @@ public class PaymentsController(
     : ControllerBase
 {
     /// <summary>
-    /// Retrieves a previously processed payment by its unique identifier.
+    /// Gets a previously processed payment.
     /// </summary>
-    /// <param name="id">The unique identifier of the payment.</param>
-    /// <returns>
-    /// The payment details if found; otherwise returns <c>404 Not Found</c>.
-    /// </returns>
+    /// <param name="id">Payment identifier.</param>
+    /// <returns>The payment if it exists.</returns>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(PaymentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -30,13 +28,11 @@ public class PaymentsController(
     }
 
     /// <summary>
-    /// Processes a payment request.
+    /// Processes a payment.
     /// </summary>
-    /// <param name="request">The payment details.</param>
-    /// <param name="cancellationToken"></param>
-    /// <returns>
-    /// The processed payment result if the request is valid; otherwise an error response.
-    /// </returns>
+    /// <param name="request">Payment details.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The processed payment result.</returns>
     [HttpPost]
     [ProducesResponseType(typeof(PaymentResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]

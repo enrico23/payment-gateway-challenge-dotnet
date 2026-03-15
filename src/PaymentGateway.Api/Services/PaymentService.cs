@@ -1,15 +1,35 @@
 namespace PaymentGateway.Api.Services;
 
+/// <summary>
+/// Processes payment requests.
+/// </summary>
 public interface IPaymentService
 {
+    /// <summary>
+    /// Processes a payment request and returns the result.
+    /// </summary>
+    /// <param name="request">The payment request to process.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The processed payment.</returns>
     Task<PaymentResponse> ProcessAsync(PostPaymentRequest request, CancellationToken cancellationToken = default);
 }
 
+/// <summary>
+/// Handles payment processing.
+/// </summary>
 public class PaymentService(
     IPaymentsRepository paymentsRepository,
     IAcquiringBankClient bankClient)
     : IPaymentService
 {
+    /// <summary>
+    /// Validates the request, sends it to the acquiring bank, and stores the result.
+    /// </summary>
+    /// <param name="request">The payment request to process.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The processed payment.</returns>
+    /// <exception cref="PaymentValidationException">Thrown when the request is invalid.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the bank is unavailable or processing fails.</exception>
     public async Task<PaymentResponse> ProcessAsync(PostPaymentRequest request, CancellationToken cancellationToken = default)
     {
         Payment.EnsureCanCreate(request);
