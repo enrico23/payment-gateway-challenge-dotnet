@@ -1,5 +1,8 @@
 namespace PaymentGateway.Api.Controllers;
 
+/// <summary>
+/// Exposes endpoints for processing payments and retrieving previously processed payment details.
+/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class PaymentsController(
