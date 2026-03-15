@@ -1,6 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 namespace PaymentGateway.Api.Tests.Integration.PaymentsControllerTests;
 
 public abstract class PaymentsTestBase : IDisposable

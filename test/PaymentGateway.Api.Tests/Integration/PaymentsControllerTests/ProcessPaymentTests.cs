@@ -1,5 +1,3 @@
-using PaymentGateway.Api.Models;
-
 namespace PaymentGateway.Api.Tests.Integration.PaymentsControllerTests;
 
 public class ProcessPaymentTests : PaymentsTestBase

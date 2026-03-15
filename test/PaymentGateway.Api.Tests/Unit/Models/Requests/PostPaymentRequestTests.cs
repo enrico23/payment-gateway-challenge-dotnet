@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace PaymentGateway.Api.Tests.Unit.Models.Requests;
 
 public class PostPaymentRequestTests
