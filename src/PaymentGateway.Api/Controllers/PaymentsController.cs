@@ -40,7 +40,7 @@ public class PaymentsController(
           [FromBody] PostPaymentRequest request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
-            return UnprocessableEntity(CreateRejectedResponse(request));
+            return StatusCode(StatusCodes.Status201Created, CreateRejectedResponse(request));
 
         try
         {
@@ -65,7 +65,7 @@ public class PaymentsController(
                 }
             }
 
-            return UnprocessableEntity(CreateRejectedResponse(request));
+            return StatusCode(StatusCodes.Status201Created, CreateRejectedResponse(request));
         }
         catch (InvalidOperationException)
         {
