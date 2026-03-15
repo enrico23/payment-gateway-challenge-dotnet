@@ -13,8 +13,7 @@ builder.Services
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
-    options.InvalidModelStateResponseFactory = context =>
-        new UnprocessableEntityObjectResult(new ValidationProblemDetails(context.ModelState));
+    options.SuppressModelStateInvalidFilter = true;
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

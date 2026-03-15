@@ -5,8 +5,5 @@ namespace PaymentGateway.Api.Services;
 /// </summary>
 public sealed class InMemoryPaymentStore
 {
-    /// <summary>
-    /// Stored payments.
-    /// </summary>
     public List<Payment> Payments { get; } = [];
 }

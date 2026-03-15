@@ -8,8 +8,5 @@ namespace PaymentGateway.Api.Clients;
 public sealed class BankErrorResponse
 {
     [JsonPropertyName("error_message")]
-    /// <summary>
-    /// Error message from the bank.
-    /// </summary>
     public string ErrorMessage { get; set; } = string.Empty;
 }

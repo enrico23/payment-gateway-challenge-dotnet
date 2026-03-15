@@ -5,29 +5,10 @@ namespace PaymentGateway.Api.Clients;
 /// </summary>
 public sealed class BankPaymentResult
 {
-    /// <summary>
-    /// Indicates whether the bank call succeeded.
-    /// </summary>
     public bool IsSuccess { get; init; }
-
-    /// <summary>
-    /// Indicates whether the bank was unavailable.
-    /// </summary>
     public bool IsUnavailable { get; init; }
-
-    /// <summary>
-    /// Indicates whether the payment was authorized.
-    /// </summary>
     public bool? Authorized { get; init; }
-
-    /// <summary>
-    /// Authorization code returned by the bank.
-    /// </summary>
     public string AuthorizationCode { get; init; } = string.Empty;
-
-    /// <summary>
-    /// Error message returned by the bank.
-    /// </summary>
     public string ErrorMessage { get; init; } = string.Empty;
 
     /// <summary>

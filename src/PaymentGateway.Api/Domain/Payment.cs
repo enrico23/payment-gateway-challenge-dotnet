@@ -32,39 +32,18 @@ public sealed class Payment
         Amount = amount;
     }
 
-    /// <summary>
-    /// Payment identifier.
-    /// </summary>
     public Guid Id { get; }
 
-    /// <summary>
-    /// Payment status.
-    /// </summary>
     public PaymentStatus Status { get; }
 
-    /// <summary>
-    /// Last four digits of the card number.
-    /// </summary>
     public string CardNumberLastFour { get; }
 
-    /// <summary>
-    /// Card expiry month.
-    /// </summary>
     public int ExpiryMonth { get; }
 
-    /// <summary>
-    /// Card expiry year.
-    /// </summary>
     public int ExpiryYear { get; }
 
-    /// <summary>
-    /// Payment currency.
-    /// </summary>
     public string Currency { get; }
 
-    /// <summary>
-    /// Payment amount in minor currency units.
-    /// </summary>
     public int Amount { get; }
 
     /// <summary>
