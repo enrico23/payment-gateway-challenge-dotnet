@@ -66,17 +66,10 @@ Processed payments are stored as internal `Payment` domain objects rather than A
 
 ### Error handling
 
-- Invalid request or failed business validation returns `422 Unprocessable Entity`
+- Invalid request or failed business validation returns `201 Created` with `Status = Rejected`
 - Acquiring bank unavailability returns `502 Bad Gateway`
 
-The use of `422 Unprocessable Entity` for invalid payment requests is an intentional design choice based on common payment-gateway behavior and Checkout.com documentation:
-
-- Checkout.com API usage documentation states that `422` means `Invalid data was sent` and that validation errors are returned as `422 HTTP` responses:
-  https://checkoutdocs.readme.io/docs/api-usage
-- Checkout.com support documentation states that when invalid data is sent in a payment request, the payment is not processed and a `422` response is returned:
-  https://support.checkout.com/hc/en-us/articles/25924251572754-Invalid-data-in-payment-request
-- Checkout.com also documents that `422` errors occur before the request reaches the gateway, so the transaction is never created:
-  https://support.checkout.com/hc/en-us/articles/28789241477266-Transaction-with-422-error-not-appearing-in-any-of-my-reports
+For rejected requests, the acquiring bank is not contacted and no payment is stored.
 
 ### Testing
 
@@ -110,5 +103,11 @@ The validation split follows Microsoft guidance for separating API model validat
 - `Amount` is represented as an `int` because the contract uses minor currency units rather than decimal major-unit amounts.
 - `ExpiryYear` uses a dynamic sanity range at the request boundary to fail fast on unrealistic values, while the actual card-expiry decision is handled in the domain model.
 - Card expiry follows normal banking behavior: a card remains valid through the end of its expiry month.
-- Invalid payment requests return `422 Unprocessable Entity` and do not create a payment record.
+- Invalid payment requests return `201 Created` with `Status = Rejected`, do not contact the acquiring bank, and do not create a stored payment.
 - Successful calls to the acquiring bank return a payment response with status `Authorized` or `Declined`.
+
+## Trade-offs
+
+- Invalid requests return `201 Created` with `Status = Rejected` to match the exercise wording exactly, even though many production payment APIs would instead use a client error response.
+- The solution uses an in-memory repository because the exercise explicitly allows a test-double style storage approach.
+- The automated tests focus on request validation, domain rules, and API behavior rather than trying to unit test every simple DTO or thin wrapper.
