@@ -1,21 +1,50 @@
-﻿namespace PaymentGateway.Api.Tests.Integration
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace PaymentGateway.Api.Tests.Integration;
+
+public abstract class PaymentsTestBase : IDisposable
 {
-    public abstract class PaymentsTestBase
+    protected InMemoryPaymentStore DataStore { get; } = new();
+
+    protected IAcquiringBankClient AcquiringBankClient { get; } =
+        Substitute.For<IAcquiringBankClient>();
+
+    protected WebApplicationFactory<Program> Factory { get; }
+
+    protected HttpClient Client { get; }
+
+    protected static readonly JsonSerializerOptions JsonOptions = new()
     {
-        protected readonly Random _random = new();
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() }
+    };
 
-        protected HttpClient CreateClient(InMemoryPaymentStore store)
-        {
-            var factory = new WebApplicationFactory<Program>();
+    protected readonly Random _random = new();
 
-            return factory.WithWebHostBuilder(builder =>
+    protected PaymentsTestBase()
+    {
+        Factory = new WebApplicationFactory<Program>()
+            .WithWebHostBuilder(builder =>
                 builder.ConfigureServices(services =>
                 {
-                    services.AddSingleton(store);
+                    services.RemoveAll<InMemoryPaymentStore>();
+                    services.RemoveAll<IPaymentsRepository>();
+                    services.RemoveAll<IPaymentService>();
+                    services.RemoveAll<IAcquiringBankClient>();
+
+                    services.AddSingleton(DataStore);
                     services.AddScoped<IPaymentsRepository, PaymentsRepository>();
                     services.AddScoped<IPaymentService, PaymentService>();
-                }))
-                .CreateClient();
-        }
+                    services.AddSingleton<IAcquiringBankClient>(AcquiringBankClient);
+                }));
+
+        Client = Factory.CreateClient();
+    }
+
+    public void Dispose()
+    {
+        Client.Dispose();
+        Factory.Dispose();
     }
 }

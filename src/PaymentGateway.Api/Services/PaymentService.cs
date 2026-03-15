@@ -14,10 +14,19 @@ public class PaymentService(
     {
         var bankResult = await bankClient.ProcessPaymentAsync(request, cancellationToken);
 
+        if (bankResult.IsUnavailable)
+            throw new InvalidOperationException("The acquiring bank is unavailable.");
+       
+        if (!bankResult.IsSuccess || bankResult.Authorized is null)
+            throw new InvalidOperationException("The payment could not be processed.");
+        
         var payment = new PaymentResponse
         {
             Id = Guid.NewGuid(),
-            Status = MapStatus(bankResult),
+            Amount = request.Amount,
+            Status = bankResult.Authorized.Value
+                  ? PaymentStatus.Authorized
+                  : PaymentStatus.Declined,
             CardNumberLastFour = request.CardNumber[^4..],
             ExpiryMonth = request.ExpiryMonth,
             ExpiryYear = request.ExpiryYear,
@@ -27,21 +36,5 @@ public class PaymentService(
         paymentsRepository.Add(payment);
 
         return payment;
-    }
-
-    private PaymentStatus MapStatus(BankPaymentResult bankResult)
-    {
-        if (bankResult.IsUnavailable)
-            return PaymentStatus.Rejected;
-
-        if (bankResult.IsSuccess && bankResult.Authorized == true)
-            return PaymentStatus.Authorized;
-
-        if (bankResult.IsSuccess && bankResult.Authorized == false)
-        {
-            return PaymentStatus.Declined;
-        }
-
-        return PaymentStatus.Rejected;
     }
 }

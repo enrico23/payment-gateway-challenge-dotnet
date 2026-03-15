@@ -43,8 +43,6 @@ public sealed class AcquiringBankClient(HttpClient httpClient)
 
         return bankResponse is null
             ? BankPaymentResult.Failed("Bank response was empty.")
-            : BankPaymentResult.Success(
-            bankResponse.Authorized,
-            bankResponse.AuthorizationCode);
+            : BankPaymentResult.Success(bankResponse.Authorized, bankResponse.AuthorizationCode);
     }
 }

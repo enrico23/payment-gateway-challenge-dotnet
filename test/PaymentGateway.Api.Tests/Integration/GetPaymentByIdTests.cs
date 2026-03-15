@@ -6,7 +6,6 @@ public class GetPaymentByIdTests : PaymentsTestBase
     public async Task RetrievesAPaymentSuccessfully()
     {
         // Arrange
-        var store = new InMemoryPaymentStore();
         var randomCardNumber = _random.Next(1111, 9999);
 
         var payment = new PaymentResponse
@@ -18,13 +17,11 @@ public class GetPaymentByIdTests : PaymentsTestBase
             CardNumberLastFour = randomCardNumber.ToString(),
             Currency = "GBP"
         };
-        store.Payments.Add(payment);
-
-        var client = CreateClient(store);
+        DataStore.Payments.Add(payment);
 
         // Act
-        var response = await client.GetAsync($"/api/Payments/{payment.Id}");
-        var paymentResponse = await response.Content.ReadFromJsonAsync<PaymentResponse>();
+        var response = await Client.GetAsync($"/api/Payments/{payment.Id}");
+        var paymentResponse = await response.Content.ReadFromJsonAsync<PaymentResponse>(JsonOptions);
         
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -34,12 +31,8 @@ public class GetPaymentByIdTests : PaymentsTestBase
     [Fact]
     public async Task Returns404IfPaymentNotFound()
     {
-        // Arrange
-        var store = new InMemoryPaymentStore();
-        var client = CreateClient(store);
-
         // Act
-        var response = await client.GetAsync($"/api/Payments/{Guid.NewGuid()}");
+        var response = await Client.GetAsync($"/api/Payments/{Guid.NewGuid()}");
         
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

@@ -44,11 +44,18 @@ public class PaymentsController(
         if (!ModelState.IsValid)
             return ValidationProblem(ModelState);
 
-        PaymentResponse payment = await paymentService.ProcessAsync(request, cancellationToken);
+        try
+        {
+            PaymentResponse payment = await paymentService.ProcessAsync(request, cancellationToken);
 
-        return CreatedAtAction(
-            nameof(GetPayment), 
-            new { id = payment.Id }, 
-            payment);
+            return CreatedAtAction(
+                nameof(GetPayment),
+                new { id = payment.Id },
+                payment);
+        }
+        catch (InvalidOperationException)
+        {
+            return StatusCode(StatusCodes.Status502BadGateway);
+        }
     }
 }
